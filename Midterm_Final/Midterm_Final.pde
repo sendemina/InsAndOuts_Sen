@@ -9,7 +9,13 @@ Instuctions:
 - during autumn and winter, move the mouse => create wind
 
 */
+//add rollover effects for ui?
+//transition between seasons?
+//audio: music, weather sounds (rain/snow, wind - mouse?), grandma generated voice
 
+//Sound effects from https://www.zapsplat.com
+import processing.sound.*;
+ 
 static enum season { SPRING, AUTUMN, WINTER }
 season currentSeason;
 
@@ -42,11 +48,22 @@ SmokePuff[] smokePuffs = new SmokePuff[20];
 Raindrop[] raindrops = new Raindrop[500];
 Snowflake[] snowflakes = new Snowflake[600];
 
+SoundFile meadow;
+SoundFile rain;
+SoundFile chimes;
 
 void setup()
 {
   size(1080, 720);
   
+  meadow = new SoundFile(this, "meadow.mp3");
+  
+  rain = new SoundFile(this, "rain.mp3");
+  rain.amp(0.2);
+  
+  chimes = new SoundFile(this, "wind_chimes.mp3");
+  chimes.amp(0.2);
+
   apple = loadImage("apple.png");
   blossom = loadImage("blossom.png");
   hills = loadImage("hills.png");  
@@ -79,6 +96,10 @@ void setup()
     snowflakes[i] = new Snowflake(random(-width, 2*width), random(-height, 0));
   }
   currentSeason = season.SPRING;
+  
+
+  meadow.play();
+  meadow.loop();
 }
 
 void draw()
@@ -138,7 +159,7 @@ void draw()
   }
   else if(currentSeason == season.AUTUMN)
   { 
-    image(house, 0, 0);
+    image(house, 0, 0); 
     drawDoor();
     image(hills_autumn, 0, 0);
     // apples
@@ -267,7 +288,6 @@ void mouseClicked()
   if(mouseX>680 && mouseX<750 && mouseY>350 && mouseY<450)
   {
     openDoor = true;
-    drawDoor();
     grannyPos = 660;
     timeOfOpenedDoor = millis();
   }
@@ -305,11 +325,32 @@ void mouseClicked()
   else if(mouseX>10 && mouseX<140 && 
           mouseY>10 && mouseY<80)
   {
-    if (currentSeason == season.SPRING) currentSeason = season.AUTUMN;
-    else if (currentSeason == season.AUTUMN) currentSeason = season.WINTER;
-    else if  (currentSeason == season.WINTER) currentSeason = season.SPRING;
+    if (currentSeason == season.SPRING) 
+    {
+      currentSeason = season.AUTUMN;
+      rain.play();
+    }
+    else if (currentSeason == season.AUTUMN) 
+    {
+      currentSeason = season.WINTER;
+      meadow.stop();
+      rain.stop();
+      chimes.loop();
+    }
+    else if  (currentSeason == season.WINTER) 
+    {
+      currentSeason = season.SPRING;
+      chimes.stop();
+    }
     
     openDoor = false;
+  }
+  //MUSIC
+  else if(mouseX>20 && mouseX<240 && 
+          mouseY>10 && mouseY<80)
+  {
+    if (meadow.isPlaying()) { meadow.stop(); }
+    else meadow.play();
   }
 }
 
@@ -372,7 +413,7 @@ void drawDoor()
       image(granny, grannyPos, 350, 100, 100);
       fill(150, 70, 50);
       textSize(16);
-      if(millis() - timeOfOpenedDoor > 1000)
+      if(millis() - timeOfOpenedDoor > 1000+10)
       {
         text("What lovely apple blossoms!", 450, 350, 200, 100);
       }
