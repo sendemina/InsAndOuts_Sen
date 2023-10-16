@@ -9,11 +9,14 @@ Instuctions:
 - during autumn and winter, move the mouse => create wind
 
 */
+
 //add rollover effects for ui?
 //transition between seasons?
 //audio: music, weather sounds (rain/snow, wind - mouse?), grandma generated voice
 
+
 //Sound effects from https://www.zapsplat.com
+//Music written by Amos Roddy
 import processing.sound.*;
  
 static enum season { SPRING, AUTUMN, WINTER }
@@ -51,18 +54,27 @@ Snowflake[] snowflakes = new Snowflake[600];
 SoundFile meadow;
 SoundFile rain;
 SoundFile chimes;
+SoundFile door;
+
+BrownNoise wind;
 
 void setup()
 {
   size(1080, 720);
   
   meadow = new SoundFile(this, "meadow.mp3");
+  meadow.amp(0.2);
   
   rain = new SoundFile(this, "rain.mp3");
   rain.amp(0.2);
   
   chimes = new SoundFile(this, "wind_chimes.mp3");
   chimes.amp(0.2);
+  
+  door = new SoundFile(this, "door.mp3");
+  door.amp(0.2);
+  
+  wind = new BrownNoise(this);
 
   apple = loadImage("apple.png");
   blossom = loadImage("blossom.png");
@@ -193,7 +205,7 @@ void draw()
   image(arrow, 160, height - 80, 80, 80);
   tint(255, 255);
   
-  //Season
+  // Next Season
   image(nextSeason, 0, -30, 150, 150);
 }
 
@@ -325,10 +337,13 @@ void mouseClicked()
   else if(mouseX>10 && mouseX<140 && 
           mouseY>10 && mouseY<80)
   {
+    originalSky = true;
     if (currentSeason == season.SPRING) 
     {
       currentSeason = season.AUTUMN;
-      rain.play();
+      //rain.loop();
+      wind.play();
+      wind.amp((mouseX - pmouseX)*0.1);
     }
     else if (currentSeason == season.AUTUMN) 
     {
@@ -341,6 +356,7 @@ void mouseClicked()
     {
       currentSeason = season.SPRING;
       chimes.stop();
+      meadow.loop();
     }
     
     openDoor = false;
@@ -424,7 +440,10 @@ void drawDoor()
       {
         text("I'd rather stay inside...", 450, 350, 200, 100);
         if(millis() - timeOfOpenedDoor > 2000)
+        {
           openDoor = false;
+          if(!door.isPlaying()) { door.play(); }
+        }
       }
     }
   }
