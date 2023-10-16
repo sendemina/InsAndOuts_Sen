@@ -41,6 +41,8 @@ PImage brush;
 PImage bucket;
 PImage arrow;
 PImage nextSeason;
+PImage note_on;
+PImage note_off;
 
 PFont font;
 
@@ -63,10 +65,10 @@ void setup()
   size(1080, 720);
   
   meadow = new SoundFile(this, "meadow.mp3");
-  meadow.amp(0.2);
+  meadow.amp(0.3);
   
   rain = new SoundFile(this, "rain.mp3");
-  rain.amp(0.2);
+  rain.amp(0.1);
   
   chimes = new SoundFile(this, "wind_chimes.mp3");
   chimes.amp(0.2);
@@ -89,6 +91,8 @@ void setup()
   bucket = loadImage("bucket.png"); 
   arrow = loadImage("arrow.png");
   nextSeason = loadImage("season.png");
+  note_on = loadImage("note_on.png");
+  note_off = loadImage("note_off.png");
   
   font = createFont("lemon.ttf", 16);
   textFont(font);
@@ -108,16 +112,14 @@ void setup()
     snowflakes[i] = new Snowflake(random(-width, 2*width), random(-height, 0));
   }
   currentSeason = season.SPRING;
-  
-
-  meadow.play();
   meadow.loop();
 }
 
 void draw()
 {
+  //====DEBUGGING======
   //println(frameRate);
-  println(mouseX, mouseY);
+  //println(mouseX, mouseY);
   //println(millis());
   //println(timeOfOpenedDoor);
   
@@ -204,9 +206,15 @@ void draw()
   if (originalSky) { tint(255, 126); }
   image(arrow, 160, height - 80, 80, 80);
   tint(255, 255);
+  if (meadow.isPlaying() || chimes.isPlaying())
+  { image(note_on, 140, 10, 80, 80); }
+  else
+  { image(note_off, 140, 10, 80, 80); }
   
   // Next Season
   image(nextSeason, 0, -30, 150, 150);
+  
+  wind.amp(constrain((mouseX-pmouseX), 0.01, 0.03));
 }
 
 class SmokePuff
@@ -341,15 +349,17 @@ void mouseClicked()
     if (currentSeason == season.SPRING) 
     {
       currentSeason = season.AUTUMN;
-      //rain.loop();
+      meadow.stop();
+      rain.loop();
       wind.play();
-      wind.amp((mouseX - pmouseX)*0.1);
+
     }
     else if (currentSeason == season.AUTUMN) 
     {
       currentSeason = season.WINTER;
       meadow.stop();
       rain.stop();
+      wind.stop();
       chimes.loop();
     }
     else if  (currentSeason == season.WINTER) 
@@ -362,11 +372,16 @@ void mouseClicked()
     openDoor = false;
   }
   //MUSIC
-  else if(mouseX>20 && mouseX<240 && 
+  else if(mouseX>140 && mouseX<240 && 
           mouseY>10 && mouseY<80)
   {
-    if (meadow.isPlaying()) { meadow.stop(); }
-    else meadow.play();
+    if (meadow.isPlaying() || chimes.isPlaying()) 
+    { 
+       meadow.stop();
+       chimes.stop();
+    }
+    else if (currentSeason == season.WINTER) { chimes.loop(); }
+    else if (currentSeason == season.SPRING) { meadow.loop(); }
   }
 }
 
