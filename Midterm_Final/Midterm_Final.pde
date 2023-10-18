@@ -10,13 +10,9 @@ Instuctions:
 
 */
 
-//add rollover effects for ui?
-//transition between seasons?
-//audio: music, weather sounds (rain/snow, wind - mouse?), grandma generated voice
-
-
 //Sound effects from https://www.zapsplat.com
 //Music written by Amos Roddy
+
 import processing.sound.*;
  
 static enum season { SPRING, AUTUMN, WINTER }
