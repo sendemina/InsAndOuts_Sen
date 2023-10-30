@@ -1,37 +1,55 @@
-/*
-  Blink
+const int LEDpin1 = 11;
+const int LEDpin2 = 10;
+const int LEDpin3 = 9;
+const int LEDpin4 = 6;
+const int LEDpin5 = 5;
+const int LEDpin6 = 3;
 
-  Turns an LED on for one second, then off for one second, repeatedly.
+const int buttonPin = 2;
 
-  Most Arduinos have an on-board LED you can control. On the UNO, MEGA and ZERO
-  it is attached to digital pin 13, on MKR1000 on pin 6. LED_BUILTIN is set to
-  the correct LED pin independent of which board is used.
-  If you want to know what pin the on-board LED is connected to on your Arduino
-  model, check the Technical Specs of your board at:
-  https://www.arduino.cc/en/Main/Products
+bool buttonState = LOW;
 
-  modified 8 May 2014
-  by Scott Fitzgerald
-  modified 2 Sep 2016
-  by Arturo Guadalupi
-  modified 8 Sep 2016
-  by Colby Newman
-
-  This example code is in the public domain.
-
-  https://www.arduino.cc/en/Tutorial/BuiltInExamples/Blink
-*/
-
-// the setup function runs once when you press reset or power the board
-void setup() {
-  // initialize digital pin LED_BUILTIN as an output.
-  pinMode(LED_BUILTIN, OUTPUT);
+void setup() 
+{
+  pinMode(LEDpin1, OUTPUT);
+  pinMode(LEDpin2, OUTPUT);
+  pinMode(LEDpin3, OUTPUT);
+  pinMode(LEDpin4, OUTPUT);
+  pinMode(LEDpin5, OUTPUT);
+  pinMode(LEDpin6, OUTPUT);
+  
+  pinMode(buttonPin, INPUT);
 }
 
-// the loop function runs over and over again forever
-void loop() {
-  digitalWrite(LED_BUILTIN, HIGH);  // turn the LED on (HIGH is the voltage level)
-  delay(1000);                      // wait for a second
-  digitalWrite(LED_BUILTIN, LOW);   // turn the LED off by making the voltage LOW
-  delay(1000);                      // wait for a second
+void loop() 
+{
+  buttonState = digitalRead(buttonPin);
+
+
+
+  if (buttonState == HIGH)
+  {
+    digitalWrite(LEDpin1, HIGH);  
+    delay(1000);
+    digitalWrite(LEDpin2, HIGH);
+    delay(1000);
+    digitalWrite(LEDpin3, HIGH);
+    delay(1000);
+    digitalWrite(LEDpin4, HIGH);  
+    delay(1000);
+    digitalWrite(LEDpin5, HIGH);
+    delay(1000);
+    digitalWrite(LEDpin6, HIGH);
+    delay(1000);
+  }
+  
+  if (buttonState == LOW)
+  {
+    digitalWrite(LEDpin1, LOW);
+    digitalWrite(LEDpin2, LOW);
+    digitalWrite(LEDpin3, LOW);
+    digitalWrite(LEDpin4, LOW);
+    digitalWrite(LEDpin5, LOW);
+    digitalWrite(LEDpin6, LOW);
+  }
 }
