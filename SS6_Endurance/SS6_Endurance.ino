@@ -1,6 +1,6 @@
 //Sen Demina
 //Endurance
-//Keep pressing the button long enough to fill the bar!
+//Keep holding the button down long enough to fill the bar
 
 const int ledPins[] = { 11, 10,9, 6, 5, 3 };
 const int ledCount = 6;
