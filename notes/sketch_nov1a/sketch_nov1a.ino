@@ -16,7 +16,7 @@ void setup() {
   pinMode (LED, OUTPUT);  // initialize LED pin as digital output
   //note: no need to initialize analog inputs as those pins can only be inputs
   
-  //Serial.begin(9600);  // initialize serial communication at 9600 bits per second
+  Serial.begin(9600);  // initialize serial communication at 9600 bits per second
 }
 
 void loop() {
@@ -25,6 +25,6 @@ void loop() {
 
 //comment and uncomment ONE of these below
   //Serial.println (reading/4);  // prints to Serial monitor
- // Serial.write(reading/4); //sends binary data to Serial port
+  Serial.write(reading/4); //sends binary data to Serial port
 
 }

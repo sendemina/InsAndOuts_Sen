@@ -10,7 +10,7 @@ void setup()
   noStroke();
 
   printArray(Serial.list()); // this line prints the port list to the console
-  String portName = Serial.list()[0]; //change the number in the [] for the port you need
+  String portName = Serial.list()[3]; //change the number in the [] for the port you need
   myPort = new Serial(this, portName, 9600);
 }
 
