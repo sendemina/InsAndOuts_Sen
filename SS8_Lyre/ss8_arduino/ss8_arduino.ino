@@ -13,7 +13,7 @@
 const int BUZZER = 5; //buzzer to arduino pin 5
 const int LED = 10;
 int val = 0; //tracks incoming value from Serial port  
-int frequency=0; //tracks value to send to piezo
+//int frequency=0; //tracks value to send to piezo
 
 void setup() {
   pinMode(BUZZER, OUTPUT); 
@@ -27,8 +27,8 @@ void loop() {
     delay (10);
   }
     //frequency = map (val, 0, 255, 100, 1500);
-    frequency = val;
-    analogWrite(LED, frequency);
-    tone (BUZZER, frequency, 10);  // send frequency at 10 millis duration
+    //frequency = val;
+    analogWrite(LED, val);
+    tone (BUZZER, val, 100);  // send frequency at 10 millis duration
     delay (1);   
 }
