@@ -1,19 +1,12 @@
-
-
-
-//string is plucked when mouse hovers over => release?(very low frequency?)
+import processing.serial.*; 
 
 
 int val=0;
 LyreString[] strings = new LyreString[12];
 
-//pentatonic: C D E G A, octave 3
-//float[] frequencies = { 130.81, 146.83, 164.81, 196, 220 };
-//int[] frequencies = { 131, 147, 165, 196, 220 };
+
 int[] frequencies = { 131, 139, 147, 156, 165, 175, 185, 196, 208, 220, 233, 247 };
 
-
-import processing.serial.*; 
 
 Serial myPort;
 PImage lyre;
@@ -40,10 +33,10 @@ void draw()
   background(50, 80, 80);
 
   image(lyre, 0, 0);
-  //println(mouseX);//166 - 313
-  //println(mouseY);//580
+  //println(mouseX);
+  //println(mouseY);
    
-  stroke(240, 230, 230);
+  stroke(240, 220, 220);
   strokeWeight(4);
   for (int i = 0; i < strings.length; i++)
   {
