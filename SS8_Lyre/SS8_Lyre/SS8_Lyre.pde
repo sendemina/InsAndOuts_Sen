@@ -81,7 +81,7 @@ class LyreString
   
   boolean isPlucked()
   {
-    if(mouseX>=posX-10 && mouseX<=posX+10 && mouseY>=peg && mouseY<=tail)
+    if(mouseX>=posX-10 && mouseX<=posX+10 && mouseY>=peg && mouseY<=tail && mousePressed)
     {      
       timeOfPluck = millis();
       pluckY = mouseY;
