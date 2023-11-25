@@ -49,9 +49,12 @@ void drawTerrain()
   rotateX(PI/2.5);
  
   lights();  
+  fill(100, 150, 200);
+  rect(0, 0, X*size, Y*size);
   fill(150, 180, 130);
-  stroke(50);
-  
+  noStroke();
+  //stroke(50);
+
   for(int i = 0; i < Y; i++)
   {
     pushMatrix();
@@ -78,4 +81,9 @@ void drawSky()
     fill(250, 20);
     rect(-width, i, width*4, i);
   }
+}
+
+void mousePressed()
+{
+  rotateY(PI/4);
 }

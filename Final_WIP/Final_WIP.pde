@@ -19,12 +19,12 @@ void setup()
 void draw()
 {
   background(130, 200, 250);
-  for(int i = height; i > 100; i-=5)
-  {
-    noStroke();
-    fill(250, 20);
-    rect(0, i, width, i);
-  }
+  //for(int i = height; i > 100; i-=5)
+  //{
+  //  noStroke();
+  //  fill(250, 20);
+  //  rect(0, i, width, i);
+  //}
   
   lights();
   stroke(150, 180, 130);
@@ -35,6 +35,7 @@ void draw()
   
   calculateTerrain();
   drawTerrain();
+  println(frameRate);
 }
 
 void calculateTerrain()
@@ -43,12 +44,11 @@ void calculateTerrain()
   zOffs = time;
   for(int i = 0; i < width/size; i++)
   {
-
+    zOffs = 0;
     for (int j = 0; j < height/size; j++)
     {
       //elevation[i][j] = random(-10, 10);
-      elevation[i][j] = map(noise(zOffs), 0, 1, -20, 20)
-                      * map(noise(zOffm), 0, 1, -20, 20);
+      elevation[i][j] = map(noise(zOffs, zOffm), 0, 1, -20, 20);
       zOffs += 0.01;
     }
     zOffm += 0.01;
@@ -69,8 +69,8 @@ void drawTerrain()
   {
     for(int j = 0; j < height; j+=size)
     {  
-      vertex(i, j, elevation[i/size][j/size]);
-      vertex(i+size, j, elevation[i/size+1][j/size]);
+      //vertex(i, j, elevation[i/size][j/size]);
+      //vertex(i+size, j, elevation[i/size+1][j/size]);
       //vertex(i, j, elevation[i/size][j/size]);
       //vertex(i, j+size, elevation[i/size][j/size+1]);
     }
