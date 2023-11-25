@@ -24,8 +24,8 @@ void setup()
 
   //set up Serial communication
   printArray(Serial.list()); // prints port list to the console
-  //String portName = Serial.list()[5]; //change to match your port
-  String portName = Serial.list()[0];
+  String portName = Serial.list()[5]; //change to match your port
+  //String portName = Serial.list()[0];
   myPort = new Serial(this, portName, 9600); //initialize Serial communication at 9600 baud
 }
 
