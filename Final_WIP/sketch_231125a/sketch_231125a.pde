@@ -1,3 +1,5 @@
+import processing.sound.*;
+
 int X = 100;
 int Y = 60;
 int size = 20;
@@ -5,10 +7,14 @@ int size = 20;
 int elevation[][] = new int[X][Y]; 
 float xOff, yOff;
 float time;
+SoundFile sencraft; 
 
 void setup()
 {
   size(1000, 600, P3D);
+  sencraft = new SoundFile(this, "sencraft_draft.mp3");
+  sencraft.amp(0.3);
+  sencraft.loop();
 }
 
 void draw()
