@@ -8,6 +8,7 @@
 int ADXL345 = 0x53; // The ADXL345 sensor I2C address
 
 float X_out, Y_out, Z_out;  // Outputs
+int X_out_mapped, Y_out_mapped, Z_out_mapped;
 
 enum state { x, y, z };
 state currentState;
@@ -36,34 +37,61 @@ void loop() {
   Y_out = Y_out/256;
   Z_out = ( Wire.read()| Wire.read() << 8); // Z-axis value
   Z_out = Z_out/256;
-  delay(100);
+  delay(50);
+  
+  //X_out_mapped = (x_out - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 
-//  currentState = x;
-//  Serial.write(currentState);
-//  //Serial.write(int(map(X_out, -1, 1, 3, 255)));
-//  Serial.write(int((X_out+1)/2*252)+3);
-//
-//  currentState = y;
-//  Serial.write(currentState);
-//  //Serial.write(int(map(Y_out, -1, 1, 3, 255)));
-//  Serial.write(int((Y_out+1)/2*252)+3);
-//
-//  currentState = z;
-//  Serial.write(currentState);
-//  //Serial.write(int(map(Z_out, -1, 1, 3, 255)));
-//  Serial.write(int((Z_out+1)/2*252)+3);
+  X_out_mapped = int(constrain(map(X_out*100, -105, 105, 3, 255), 3, 255));
+  Y_out_mapped = int(constrain(map(Y_out*100, -105, 105, 3, 255), 3, 255));
+  Z_out_mapped = int(constrain(map(Z_out*100, -105, 105, 3, 255), 3, 255));
+
+  X_out_mapped = int(constrain(map(X_out*100, -105, 105, 3, 255), 3, 255));
+  Y_out_mapped = int(constrain(map(Y_out*100, -105, 105, 3, 255), 3, 255));
+  Z_out_mapped = int(constrain(map(Z_out*100, -105, 105, 3, 255), 3, 255));
+
+
+  //===================WRITE - COMMUNICATION=================
+    currentState = x;
+    Serial.write(currentState);
+    Serial.write(X_out_mapped);
+  
+    currentState = y;
+    Serial.write(currentState);
+    Serial.write(Y_out_mapped);
+  
+    // currentState = z;
+    // Serial.write(currentState);
+    // Serial.write(Z_out_mapped);
+
+
+
+  //====================PRINT - DEBUGGING====================
+  // if(X_out_mapped > 2 && Y_out_mapped > 2 && Z_out_mapped > 2)
+  // {
+  //   Serial.print("Xa= ");
+  //   //Serial.println(X_out);
+  //   Serial.print(X_out_mapped);
+
+  //   Serial.print("   Ya= ");
+  //   //Serial.print(Y_out);
+  //   Serial.print(Y_out_mapped);
+
+  //   Serial.print("   Za= ");
+  //   //Serial.println(Z_out);
+  //   Serial.println(Z_out_mapped);
+  // }
 
 
 
 
 //  currentState = x;
 //  //Serial.print(currentState);
-//  Serial.println(int(map(X_out, -1, 1, 3, 255)));
+//Serial.println(int(map(X_out, -1.02, 1.00, 3, 255)));
 //  //Serial.println(int((X_out+1)/2*252)+3);
 //
 //  currentState = y;
 //  //Serial.print(currentState);
-//  Serial.println(int(map(Y_out, -1, 1, 3, 255)));
+//  Serial.println(int(map(Y_out, -1.02, 1, 3, 255)));
 //  //Serial.println(int((Y_out+1)/2*252)+3);
 //
 //  currentState = z;
@@ -71,14 +99,4 @@ void loop() {
 //  Serial.println(int(map(Z_out, -1, 1, 3, 255)));
 //  //Serial.println(int((Z_out)*252)+3);
 
-
-
-
-
-//  Serial.print("Xa= ");
-//  Serial.print(X_out);
-//  Serial.print("   Ya= ");
-//  Serial.print(Y_out);
-//  Serial.print("   Za= ");
-//  Serial.println(Z_out);
 }

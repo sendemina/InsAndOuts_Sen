@@ -25,7 +25,7 @@ SoundFile sencraft;
 void setup()
 {
   size(1000, 600, P3D);
-  //setupSerial();
+  setupSerial();
   
   move = new PVector(0, 0, 0);
   for(int i = 0; i < X; i++)
@@ -37,9 +37,9 @@ void setup()
   }
   calculateElevation();
   shapeMode(CENTER); 
-  sencraft = new SoundFile(this, "sencraft_draft.mp3"); 
-  sencraft.amp(0.1);
-  sencraft.loop();
+  //sencraft = new SoundFile(this, "sencraft_draft.mp3"); 
+  //sencraft.amp(0.1);
+  //sencraft.loop();
   lightSpecular(128, 128, 128);
   //rotY= 2.25*PI/3;
   noCursor();
@@ -47,8 +47,8 @@ void setup()
 
 void setupSerial()
 {
-  //String portName = Serial.list()[0]; //for windows
-  String portName = Serial.list()[5];   //for mac
+  String portName = Serial.list()[0]; //for windows
+  //String portName = Serial.list()[5];   //for mac
   myPort = new Serial(this, portName, 9600);
 }
 
@@ -57,28 +57,59 @@ void handleSerialInput()
   if(myPort.available() > 0) 
   {                     
     val = myPort.read();
+    
     switch(val)
     {
       case 0:
         currentAxis = axisState.Xa;
+        //println("state is now X "+millis());
         break;
       case 1:
         currentAxis = axisState.Ya;
+        //println("state is now Y "+millis());
         break;
       case 2:
         currentAxis = axisState.Za;
+        //println("state is now Z"+millis());
         break;
       default:
         handleInputAxes();
+        //println(val);
     }
   }
-  else { println("port unavailable"); }
+  //else { println("port unavailable"); }
+}
+
+void handleInputAxes()
+{
+  if(currentAxis == axisState.Xa) 
+  {  
+    valX = val;
+    rotX += map(valX, 3, 255, -0.1, 0.1);
+    println("valX="+valX);
+  }    
+  
+  else if (currentAxis == axisState.Ya) 
+  {  
+    valY = val;
+    rotY += map(valY, 3, 255, -0.1, 0.1);
+    println("valY="+valY);
+  }
+  
+  else if(currentAxis == axisState.Za) 
+  {  
+    valZ = val;
+    println("valZ="+valZ);
+  }
+  
+  else { println("state error"); }
+
+  //println("axisState="+currentAxis);
+  //println("x="+valX+" y="+valY+" z="+valZ);
 }
 
 void draw()
 {
-  //handleSerialInput();
- 
   background(100, 150, 200);
   noFill();
   stroke(1);
@@ -88,23 +119,22 @@ void draw()
   rotateY(rotY);
   //sphere(20);
   
-
-  
   pushMatrix();
   
+  handleSerialInput();
   // MOUSE ROTATION
-  rotX = -mouseY*PI/200;
-  rotY = mouseX*PI/200;
+  //rotX = -mouseY*PI/200;
+  //rotY = mouseX*PI/200;
   
-  if(keyPressed)
-  {
-    //
-    if(keyCode==UP) { move.add(new PVector(-sin(rotY)*walkSpeed, 0, cos(rotY)*walkSpeed)); }
-    if(keyCode==DOWN) {  move.add(new PVector(sin(rotY)*walkSpeed, 0, -cos(rotY)*walkSpeed)); }
-    //if (keyCode==LEFT) { rotY-=PI/36; }
-    //if(keyCode==RIGHT) { rotY+=PI/36; }
-    //if(keyCode==SHIFT) { elevation += size*1.5; }
-  }
+  //if(keyPressed)
+  //{
+  //  //
+  //  if(keyCode==UP) { move.add(new PVector(-sin(rotY)*walkSpeed, 0, cos(rotY)*walkSpeed)); }
+  //  if(keyCode==DOWN) {  move.add(new PVector(sin(rotY)*walkSpeed, 0, -cos(rotY)*walkSpeed)); }
+  //  //if (keyCode==LEFT) { rotY-=PI/36; }
+  //  //if(keyCode==RIGHT) { rotY+=PI/36; }
+  //  //if(keyCode==SHIFT) { elevation += size*1.5; }
+  //}
   
 
   //stroke(100, 100, 200);
@@ -158,29 +188,7 @@ void draw()
   }
 }
 
-void handleInputAxes()
-{
-  if(currentAxis == axisState.Xa) 
-  {  
-    valX = val;
-    rotX += map(valX, 3, 255, -0.1, 0.1);
-  }    
-  
-  else if (currentAxis == axisState.Ya) 
-  {  
-    valY = val;
-    rotY += map(valY, 3, 255, -0.1, 0.1);
-  }
-  
-  else if(currentAxis == axisState.Za) 
-  {  
-    valZ = val;
-  }
-  
-  else { println("state error"); }
 
-  println("x="+valX+" y="+valY+" z="+valZ);
-}
 
 class Cube
 {
