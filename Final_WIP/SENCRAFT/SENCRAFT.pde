@@ -1,7 +1,18 @@
 import processing.sound.*;
+import processing.serial.*; 
+
+Serial myPort; 
+int val = 0;
+
+enum axisState { Xa, Ya, Za };
+axisState currentAxis;
+ 
+float valX, valY, valZ;
+
 
 float rotX, rotY;
 PVector move;
+float walkSpeed = 5;
 int size = 50;
 int X = 50;
 int Y = 50;
@@ -14,6 +25,8 @@ SoundFile sencraft;
 void setup()
 {
   size(1000, 600, P3D);
+  //setupSerial();
+  
   move = new PVector(0, 0, 0);
   for(int i = 0; i < X; i++)
   {
@@ -28,59 +41,71 @@ void setup()
   sencraft.amp(0.1);
   sencraft.loop();
   lightSpecular(128, 128, 128);
+  //rotY= 2.25*PI/3;
+  noCursor();
+}
+
+void setupSerial()
+{
+  //String portName = Serial.list()[0]; //for windows
+  String portName = Serial.list()[5];   //for mac
+  myPort = new Serial(this, portName, 9600);
+}
+
+void handleSerialInput()
+{
+  if(myPort.available() > 0) 
+  {                     
+    val = myPort.read();
+    switch(val)
+    {
+      case 0:
+        currentAxis = axisState.Xa;
+        break;
+      case 1:
+        currentAxis = axisState.Ya;
+        break;
+      case 2:
+        currentAxis = axisState.Za;
+        break;
+      default:
+        handleInputAxes();
+    }
+  }
+  else { println("port unavailable"); }
 }
 
 void draw()
 {
+  //handleSerialInput();
+ 
   background(100, 150, 200);
   noFill();
   stroke(1);
   strokeWeight(1);
   translate(width/2, height/2+size, 500);  
-  //rotateX(rotX);
+  rotateX(rotX);
   rotateY(rotY);
   //sphere(20);
   
-  pushMatrix();
-  //stroke(200, 100, 100);
-  //strokeWeight(10);
-  //line(-width, 0, width, 0);
-  //line(0, -height, 0, height);
 
-  //if(mousePressed)
-  //{
-  //  if(mouseX - pmouseX > 0) { rotX+=PI/36; }
-  //  else if (mouseX - pmouseX < 0) { rotX-=PI/36; }
-  //  if(mouseY - pmouseY > 0) { rotY-=PI/36; }
-  //  else if (mouseY - pmouseY < 0) { rotY+=PI/36; }
-  //}
+  
+  pushMatrix();
+  
+  // MOUSE ROTATION
+  rotX = -mouseY*PI/200;
+  rotY = mouseX*PI/200;
   
   if(keyPressed)
   {
     //
-    if(keyCode==UP) { move.add(new PVector(-sin(rotY)*3, 0, cos(rotY)*3)); }
-    if(keyCode==DOWN) {  move.add(new PVector(sin(rotY)*3, 0, -cos(rotY)*3)); }
-    if (keyCode==LEFT) { rotY-=PI/36; }
-    if(keyCode==RIGHT) { rotY+=PI/36; }
+    if(keyCode==UP) { move.add(new PVector(-sin(rotY)*walkSpeed, 0, cos(rotY)*walkSpeed)); }
+    if(keyCode==DOWN) {  move.add(new PVector(sin(rotY)*walkSpeed, 0, -cos(rotY)*walkSpeed)); }
+    //if (keyCode==LEFT) { rotY-=PI/36; }
+    //if(keyCode==RIGHT) { rotY+=PI/36; }
     //if(keyCode==SHIFT) { elevation += size*1.5; }
   }
   
-  //move.x -= sin(rotX)*2;
-  //move.x -= sin(rotX)*2;
-  //move.z -= sin(rotY)*2;
-  //move.z -= sin(rotY)*2;
-  
-  //move.normalize();
-  //move.add(PVector.fromAngle(rotX));
-  //println(degrees(rotY));
-  //
-
-  //line(0, 0, 0, PVector.fromAngle(rotX).x*100);
-  //println(degrees(rotX));
-  //move.x *= cos(90-degrees(rotX));
-  //move.y *= cos(90-degrees(rotY));
-  //move.mult(10);
-  //move.add(PVector.fromAngle(rotY).normalize());
 
   //stroke(100, 100, 200);
   //lights();
@@ -131,6 +156,30 @@ void draw()
     circle(0, 0, 50);
     println("ded");
   }
+}
+
+void handleInputAxes()
+{
+  if(currentAxis == axisState.Xa) 
+  {  
+    valX = val;
+    rotX += map(valX, 3, 255, -0.1, 0.1);
+  }    
+  
+  else if (currentAxis == axisState.Ya) 
+  {  
+    valY = val;
+    rotY += map(valY, 3, 255, -0.1, 0.1);
+  }
+  
+  else if(currentAxis == axisState.Za) 
+  {  
+    valZ = val;
+  }
+  
+  else { println("state error"); }
+
+  println("x="+valX+" y="+valY+" z="+valZ);
 }
 
 class Cube
