@@ -4,10 +4,10 @@ import processing.serial.*;
 Serial myPort; 
 int val = 0;
 
-enum axisState { Xa, Ya, Za };
-axisState currentAxis;
+enum inputState { Xa, Ya, Za, Sel, Vert, Horz };
+inputState currentInput;
  
-float valX, valY, valZ;
+int valX, valY, valZ, valS, valV, valH;
 
 
 float rotX, rotY;
@@ -61,16 +61,28 @@ void handleSerialInput()
     switch(val)
     {
       case 0:
-        currentAxis = axisState.Xa;
+        currentInput = inputState.Xa;
         //println("state is now X "+millis());
         break;
       case 1:
-        currentAxis = axisState.Ya;
+        currentInput = inputState.Ya;
         //println("state is now Y "+millis());
         break;
       case 2:
-        currentAxis = axisState.Za;
-        //println("state is now Z"+millis());
+        currentInput = inputState.Za;
+        //println("state is now Z "+millis());
+        break;
+      case 3:
+        currentInput = inputState.Sel;
+        //println("state is now S "+millis());
+        break;
+      case 4:
+        currentInput = inputState.Vert;
+        //println("state is now V "+millis());
+        break;
+      case 5:
+        currentInput = inputState.Horz;
+        //println("state is now H "+millis());
         break;
       default:
         handleInputAxes();
@@ -82,30 +94,53 @@ void handleSerialInput()
 
 void handleInputAxes()
 {
-  if(currentAxis == axisState.Xa) 
-  {  
-    valX = val;
-    rotX += map(valX, 3, 255, -0.1, 0.1);
-    println("valX="+valX);
-  }    
-  
-  else if (currentAxis == axisState.Ya) 
-  {  
-    valY = val;
-    rotY += map(valY, 3, 255, -0.1, 0.1);
-    println("valY="+valY);
+  switch(currentInput)
+  {
+    case Xa:
+      valX = val;
+      rotY = -PI/3+valX/255*2*PI;
+      break;
+    case Ya:
+      valY = val;
+      rotX = PI/2-valY/360*PI;
+      break;
+    case Za:
+      valZ = val;
+      break;
+    case Sel: break;
+    case Vert:
+      move.add(new PVector(-sin(rotY)*val/50, 0, cos(rotY)*val/50));
+      break;
+    case Horz:
+      break;
+    default:
+      println("state error");
   }
   
-  else if(currentAxis == axisState.Za) 
-  {  
-    valZ = val;
-    println("valZ="+valZ);
-  }
+  //if(currentInput == inputState.Xa) 
+  //{  
+  //  valX = val;
+  //  rotY = -PI/3+valX/255*2*PI;
+  //  //println("valX="+valX);
+  //}    
   
-  else { println("state error"); }
+  //else if (currentInput == inputState.Ya) 
+  //{  
+  //  valY = val;
+  //  rotX = PI/2-valY/360*PI;
+  //  //println("valY="+valY);
+  //}
+  
+  //else if(currentInput == inputState.Za) 
+  //{  
+  //  valZ = val;
+  //  //println("valZ="+valZ);
+  //}
+  
+  //else { println("state error"); }
 
   //println("axisState="+currentAxis);
-  //println("x="+valX+" y="+valY+" z="+valZ);
+  println("x="+valX+" y="+valY+" z="+valZ);
 }
 
 void draw()
