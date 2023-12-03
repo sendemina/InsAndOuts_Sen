@@ -43,7 +43,7 @@ void setup()
   {
     for(int j = 0; j < Y; j++)
     {
-      cubes[i][j] = new Cube(i*cubeSize, j*cubeSize, 0);
+      cubes[i][j] = new Cube(i, j, 0);
     }
   }
   calculateElevation();
@@ -181,10 +181,10 @@ void keyboardControls()
   
   if(keyPressed)
   {
-    if(keyCode==UP) { move.add(new PVector(-sin(rotY)*walkSpeed, 0, cos(rotY)*walkSpeed)); }
-    if(keyCode==DOWN) {  move.add(new PVector(sin(rotY)*walkSpeed, 0, -cos(rotY)*walkSpeed)); }
-    if(keyCode==LEFT) { move.add(new PVector(-sin(rotY-PI/2)*walkSpeed, 0, cos(rotY-PI/2)*walkSpeed)); }
-    if(keyCode==RIGHT) { move.add(new PVector(-sin(rotY+PI/2)*walkSpeed, 0, cos(rotY+PI/2)*walkSpeed)); }
+    if(key == 'w') { move.add(new PVector(-sin(rotY)*walkSpeed, 0, cos(rotY)*walkSpeed)); }
+    if(key == 's') {  move.add(new PVector(sin(rotY)*walkSpeed, 0, -cos(rotY)*walkSpeed)); }
+    if(key == 'a') { move.add(new PVector(-sin(rotY-PI/2)*walkSpeed, 0, cos(rotY-PI/2)*walkSpeed)); }
+    if(key == 'd') { move.add(new PVector(-sin(rotY+PI/2)*walkSpeed, 0, cos(rotY+PI/2)*walkSpeed)); }
     //if(keyCode==SHIFT) { elevation += cubeSize*1.5; }
   }
 }
@@ -230,8 +230,8 @@ void draw()
       pushMatrix();
       translate(0, cubes[i][j].elevation, 0);
       cubes[i][j].drawCube();
-      cubes[i][j].x = move.x+cubeSize*i;
-      cubes[i][j].y = move.z+cubeSize*j;
+      cubes[i][j].x_pos = move.x+cubeSize*i;
+      cubes[i][j].y_pos = move.z+cubeSize*j;
       cubes[i][j].drawCube();
       popMatrix();
       
@@ -240,6 +240,13 @@ void draw()
       if(cubes[i][j].isAtOrigin())
       {
         elevation = 50-cubes[i][j].elevation;
+        ArrayList treesNearby = cubes[i][j].cubesHaveTrees();
+        for(int k = 0; k < treesNearby.size(); k++)
+        {
+          Cube cube = (Cube)treesNearby.get(k);
+          println(cube.x);
+          // when moving, check if tree in that direction
+        }
       }
       //else elevation-=0.1;
       //println(elevation);
@@ -254,19 +261,24 @@ void draw()
 
 class Cube
 {
-  float x, y;
+  int x, y;
+  float x_pos, y_pos;
   int elevation;
   boolean hasTree;
   Tree tree;
   
-  Cube(float _x, float _y, int _elevation)
+  Cube(int _x, int _y, int _elevation)
   {
     x = _x;
     y = _y;
+    x_pos = x*cubeSize;
+    y_pos = y*cubeSize;
+    
     elevation = _elevation;
     if(int(random(30))==0) { hasTree = true; }
     if(hasTree)
     {
+      println("cube["+x+"]["+y+"] has tree");
       tree = new Tree(this, int(random(8, 20)));
     }
   }
@@ -280,7 +292,7 @@ class Cube
   
   boolean isAtOrigin()
   {
-    if(x >= 0 && x <= cubeSize && y >= 0 && y <= cubeSize)
+    if(x_pos >= 0 && x_pos <= cubeSize && y_pos >= 0 && y_pos <= cubeSize)
     {
       //println("at origin");
       return true;
@@ -292,11 +304,25 @@ class Cube
     }
   }
   
-  ArrayList<Cube> haveTrees()
+  ArrayList<Cube> cubesHaveTrees()
   {
     ArrayList<Cube> cubesWithTrees = new ArrayList<Cube>();
-    if(cubes[int(x)-1][int(x)-1].hasTree)
-    cubesWithTrees.add(cubes[1][1]);
+    if(x > 0 && x < X && y > 0 && y < Y)
+    {
+      for(int i = -1; i < 2; i++)
+      {
+        for(int j = -1; j < 2; j++)
+        {
+          int xpos = x+i;
+          int ypos = y+j;
+          if(cubes[xpos][ypos].hasTree) 
+          { 
+            cubesWithTrees.add(cubes[xpos][ypos]);
+            //println("tree near at " + xpos + " " + ypos);
+          }
+        }
+      }
+    }
     return cubesWithTrees;
   }
 }
