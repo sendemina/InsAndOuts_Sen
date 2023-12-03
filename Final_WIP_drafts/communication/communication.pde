@@ -12,8 +12,8 @@ void setup()
 {
   size(300, 300);
   
-  String portName = Serial.list()[0]; //for windows
-  //String portName = Serial.list()[5];   //for mac
+  //String portName = Serial.list()[0]; //for windows
+  String portName = Serial.list()[5];   //for mac
   myPort = new Serial(this, portName, 9600);
 }
 

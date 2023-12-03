@@ -10,9 +10,10 @@ inputState currentInput;
 int valX, valY, valZ, valS, valV, valH;
 
 float nextRotX, nextRotY;
-boolean rotToPos;
+boolean rotToPosX, rotToPosY;
 float rotX, rotY;
 PVector move;
+PVector moveTo;
 float walkSpeed = 5;
 int size = 50;
 int X = 50;
@@ -26,9 +27,12 @@ SoundFile sencraft;
 void setup()
 {
   size(1000, 600, P3D);
+  //soundtrack();
   setupSerial();
   
   move = new PVector(0, 0, 0);
+  moveTo = new PVector(0, 0, 0);
+  
   for(int i = 0; i < X; i++)
   {
     for(int j = 0; j < Y; j++)
@@ -38,12 +42,17 @@ void setup()
   }
   calculateElevation();
   shapeMode(CENTER); 
-  //sencraft = new SoundFile(this, "sencraft_draft.mp3"); 
-  //sencraft.amp(0.1);
-  //sencraft.loop();
+  
   lightSpecular(128, 128, 128);
-  //rotY= 2.25*PI/3;
+  //rotY = PI;
   noCursor();
+}
+
+void soundtrack()
+{
+  sencraft = new SoundFile(this, "sencraft_draft.mp3"); 
+  sencraft.amp(0.1);
+  sencraft.loop();
 }
 
 void setupSerial()
@@ -100,39 +109,72 @@ void handleInputAxes()
     case Xa:
       valX = val;
       nextRotY = -(PI/3+valX/255.0*2*PI);
-      if(nextRotY - rotY > 0) { rotToPos = true; }
-      else { rotToPos = false; }
-      while(abs(nextRotY - rotY) > 0.05)
-      {
-        if(rotToPos) { rotY += 0.005; }
-        else { rotY -= 0.05; }
-      }
-      rotY = -(PI/3+valX/255.0*2*PI);
+      if(nextRotY - rotY > 0) { rotToPosY = true; }
+      else { rotToPosY = false; }
+      //rotY = -(PI/3+valX/255.0*2*PI);
       break;
     case Ya:
       valY = val;
-      rotX = PI/2-valY/360.0*PI;
+      nextRotX = -(PI/2-valY/255.0*PI);
+      if(nextRotX - rotX > 0) { rotToPosX = true; }
+      else { rotToPosX = false; }
+      //rotX = PI/2-valY/360.0*PI;
       break;
     case Za:
       valZ = val;
       break;
     case Sel: break;
     case Vert:
-      //move.add(new PVector(-sin(rotY)*val/50, 0, cos(rotY)*val/50));
+    //println(val);
+      //moveTo.x = -sin(rotY)*(val-125);
+      move.add(new PVector(-sin(rotY)*(val-125), 0, cos(rotY)*(val-125)));
       break;
     case Horz:
+    println(val);
+      move.add(new PVector(-sin(rotY-PI/2)*(val-132), 0, cos(rotY-PI/2)*(val-132)));
       break;
     default:
       println("state error");
   }
   
   //println("x="+valX+" y="+valY+" z="+valZ);
-  println("x="+rotX+" y="+rotY+" z="+valZ);
+  //println("x="+rotX+" y="+rotY+" z="+valZ);
+  //println("vert="+move.y+" horz="+move.x+" sel=");
 }
 
 void rotateTowards()
 {
+  if(abs(nextRotY - rotY) > 0.05)
+  {
+    if(rotToPosY) { rotY += 0.05; }
+    else { rotY -= 0.05; }
+  }
   
+  if(abs(nextRotX - rotX) > 0.05)
+  {
+    if(rotToPosX) { rotX += 0.05; }
+    else { rotX -= 0.05; }
+  }
+}
+
+void moveTowards()
+{
+  
+}
+
+void keyboardControls()
+{
+  rotX = -mouseY*PI/200;
+  rotY = mouseX*PI/200;
+  
+  if(keyPressed)
+  {
+    if(keyCode==UP) { move.add(new PVector(-sin(rotY)*walkSpeed, 0, cos(rotY)*walkSpeed)); }
+    if(keyCode==DOWN) {  move.add(new PVector(sin(rotY)*walkSpeed, 0, -cos(rotY)*walkSpeed)); }
+    if(keyCode==LEFT) { move.add(new PVector(-sin(rotY-PI/2)*walkSpeed, 0, cos(rotY-PI/2)*walkSpeed)); }
+    if(keyCode==RIGHT) { move.add(new PVector(-sin(rotY+PI/2)*walkSpeed, 0, cos(rotY+PI/2)*walkSpeed)); }
+    //if(keyCode==SHIFT) { elevation += size*1.5; }
+  }
 }
 
 void draw()
@@ -148,20 +190,13 @@ void draw()
   
   pushMatrix();
   
-  handleSerialInput();
-  // MOUSE ROTATION
-  //rotX = -mouseY*PI/200;
-  //rotY = mouseX*PI/200;
+  //keyboardControls();
   
-  //if(keyPressed)
-  //{
-  //  //
-  //  if(keyCode==UP) { move.add(new PVector(-sin(rotY)*walkSpeed, 0, cos(rotY)*walkSpeed)); }
-  //  if(keyCode==DOWN) {  move.add(new PVector(sin(rotY)*walkSpeed, 0, -cos(rotY)*walkSpeed)); }
-  //  //if (keyCode==LEFT) { rotY-=PI/36; }
-  //  //if(keyCode==RIGHT) { rotY+=PI/36; }
-  //  //if(keyCode==SHIFT) { elevation += size*1.5; }
-  //}
+  //=====ARDUINO CONTROLS===
+  handleSerialInput();
+  rotateTowards();
+  moveTowards();
+  
   
 
   //stroke(100, 100, 200);
@@ -202,20 +237,8 @@ void draw()
   } 
   popMatrix();
   
-  if(elevation < -2000)
-  {
-    textSize(50);
-    textMode(CENTER);
-    background(200, 100, 100);
-    stroke(1);
-    strokeWeight(5);
-    text("YOU FOOL", 0, 0, 50, 50);
-    circle(0, 0, 50);
-    println("ded");
-  }
+  //handleFalling(); //doesn't work
 }
-
-
 
 class Cube
 {
@@ -284,6 +307,7 @@ class Tree
     popMatrix();
   }
 }
+
 void calculateElevation()
 {
   xOff = 0; 
@@ -300,4 +324,19 @@ void calculateElevation()
     xOff += 0.1;
   }
   //println("elevation calculated");
+}
+
+void handleFalling()
+{
+    if(elevation < -2000)
+  {
+    textSize(50);
+    textMode(CENTER);
+    background(200, 100, 100);
+    stroke(1);
+    strokeWeight(5);
+    text("YOU FOOL", 0, 0, 50, 50);
+    circle(0, 0, 50);
+    println("ded");
+  }
 }

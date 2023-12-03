@@ -56,7 +56,7 @@ void loop()
   Y_out = Y_out/256;
   Z_out = ( Wire.read()| Wire.read() << 8); // Z-axis value
   Z_out = Z_out/256;
-  delay(100);
+  delay(500);
   
   //X_out_mapped = (x_out - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 
@@ -68,71 +68,60 @@ void loop()
   horzVal_mapped = map(horzVal, 0, 660, 6, 255);
 
 
-  //calculate quicker?
+  serialWrite();
+  //printDebug();
 
-  //===================WRITE - COMMUNICATION=================
-    currentState = x;
-    Serial.write(currentState);
-    Serial.write(X_out_mapped);
+}
+
+void serialWrite()
+{
+  currentState = x;
+  Serial.write(currentState);
+  Serial.write(X_out_mapped);
+
+  currentState = y;
+  Serial.write(currentState);
+  Serial.write(Y_out_mapped);
+
+  // currentState = z;
+  // Serial.write(currentState);
+  // Serial.write(Z_out_mapped);
   
-    currentState = y;
-    Serial.write(currentState);
-    Serial.write(Y_out_mapped);
-  
-    // currentState = z;
-    // Serial.write(currentState);
-    // Serial.write(Z_out_mapped);
+  currentState = s;
+  Serial.write(currentState);
+  Serial.write(1);
 
-    currentState = v;
-    Serial.write(currentState);
-    Serial.write(vertVal_mapped);
+  currentState = v;
+  Serial.write(currentState);
+  Serial.write(vertVal_mapped);
 
-    currentState = h;
-    Serial.write(currentState);
-    Serial.write(horzVal_mapped);
+  currentState = h;
+  Serial.write(currentState);
+  Serial.write(horzVal_mapped);
+}
 
+void printDebug()
+{
+   Serial.print("Xa= ");
+   //Serial.println(X_out);
+   Serial.print(X_out_mapped);
 
+   Serial.print("   Ya= ");
+   //Serial.print(Y_out);
+   Serial.print(Y_out_mapped);
 
-  // //====================PRINT - DEBUGGING====================
-  //   Serial.print("Xa= ");
-  //   //Serial.println(X_out);
-  //   Serial.print(X_out_mapped);
+   Serial.print("   Za= ");
+   //Serial.println(Z_out);
+   Serial.print(Z_out_mapped);
 
-  //   Serial.print("   Ya= ");
-  //   //Serial.print(Y_out);
-  //   Serial.print(Y_out_mapped);
+   Serial.print("   s= ");
+   Serial.print(selVal);
 
-  //   //Serial.print("   Za= ");
-  //   ////Serial.println(Z_out);
-  //   //Serial.println(Z_out_mapped);
- 
-  //   //Serial.print("   s= ");
-  //   //Serial.println(selVal);
+   Serial.print("   vert= ");
+   //Serial.print(vertVal);
+   Serial.print(vertVal_mapped);
 
-  //   Serial.print("   vert= ");
-  //   //Serial.print(vertVal);
-  //   Serial.print(vertVal_mapped);
-
-  //   Serial.print("   horz= ");
-  //   //Serial.println(horzVal);
-  //   Serial.println(horzVal_mapped);
-
-
-
-
-//  currentState = x;
-//  //Serial.print(currentState);
-//Serial.println(int(map(X_out, -1.02, 1.00, 3, 255)));
-//  //Serial.println(int((X_out+1)/2*252)+3);
-//
-//  currentState = y;
-//  //Serial.print(currentState);
-//  Serial.println(int(map(Y_out, -1.02, 1, 3, 255)));
-//  //Serial.println(int((Y_out+1)/2*252)+3);
-//
-//  currentState = z;
-//  //Serial.print(currentState);
-//  Serial.println(int(map(Z_out, -1, 1, 3, 255)));
-//  //Serial.println(int((Z_out)*252)+3);
-
+   Serial.print("   horz= ");
+   //Serial.println(horzVal);
+   Serial.println(horzVal_mapped);
 }
