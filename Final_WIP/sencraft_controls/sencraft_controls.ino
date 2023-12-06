@@ -87,9 +87,9 @@ void serialWrite()
   // Serial.write(currentState);
   // Serial.write(Z_out_mapped);
   
-  currentState = s;
-  Serial.write(currentState);
-  Serial.write(1);
+//  currentState = s;
+//  Serial.write(currentState);
+//  Serial.write(1);
 
   currentState = v;
   Serial.write(currentState);

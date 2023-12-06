@@ -10,12 +10,12 @@ inputState currentInput;
  
 int valX, valY, valZ, valS, valV, valH;
 
-float nextRotX, nextRotY;
-boolean rotToPosX, rotToPosY;
+//float nextRotX, nextRotY;
+int rotToX, rotToY;
 float rotX, rotY;
 
-PVector pmove;
 PVector move;
+//PVector moveTo;
 int moveToX, moveToY;
 
 float incr = 0.05;
@@ -25,10 +25,6 @@ int cubeSize = 50;
 int X = 50;
 int Y = 50;
 Cube[][] cubes = new Cube[X][Y];
-//Cube lastPos = cubes[0][0];
-int lastX, lastY;
-
-boolean treeXP, treeXN, treeYP, treeYN;
 
 float elevation;
 float xOff, yOff;
@@ -41,7 +37,6 @@ void setup()
   setupSerial();
   
   move = new PVector(0, 0, 0);
-  pmove = new PVector(0, 0, 0);
   //moveTo = new PVector(0, 0, 0);
   
   for(int i = 0; i < X; i++)
@@ -120,16 +115,24 @@ void handleInputAxes()
   {
     case Xa:
       valX = val;
-      nextRotY = -(PI/3+valX/255.0*2*PI);
-      if(nextRotY - rotY > 0) { rotToPosY = true; }
-      else { rotToPosY = false; }
+      if(valX > 135) { rotToY = 1; }
+      else if(valX < 127) { rotToY = -1; }
+      else { rotToY = 0; }
+      
+      //nextRotY = -(PI/3+valX/255.0*2*PI);
+      //if(nextRotY - rotY > 0) { rotToPosY = true; }
+      //else { rotToPosY = false; }
       //rotY = -(PI/3+valX/255.0*2*PI);
       break;
     case Ya:
       valY = val;
-      nextRotX = -(PI/2-valY/255.0*PI);
-      if(nextRotX - rotX > 0) { rotToPosX = true; }
-      else { rotToPosX = false; }
+      if(valY > 135) { rotToX = 1; }
+      else if(valY < 127) { rotToX = -1; }
+      else { rotToX = 0; }
+      println(valY);
+      //nextRotX = -(PI/2-valY/255.0*PI);
+      //if(nextRotX - rotX > 0) { rotToPosX = true; }
+      //else { rotToPosX = false; }
       //rotX = PI/2-valY/360.0*PI;
       break;
     case Za:
@@ -139,41 +142,46 @@ void handleInputAxes()
       println("sel=" + val);
       break;
     case Vert:
-      if(val > 130) { moveToY = 1; }
-      else if(val < 125) { moveToY = -1; }
-      else { moveToY = 0; }
+      if(val == 127) { moveToY = 0; }
+      else if(val > 127) { moveToY = 1; }
+      else { moveToY = -1; }
       break;
     case Horz:
-      if(val > 130) { moveToX = 1; }
-      else if(val < 125) { moveToX = -1; }
-      else { moveToX = 0; }
+      if(val == 127) { moveToX = 0; }
+      else if(val > 127) { moveToX = 1; }
+      else { moveToX = -1; }
       break;
     default:
       println("state error");
   }
   
-  //println("x="+valX+" y="+valY+" z="+valZ);
+  println("x="+valX+" y="+valY+" z="+valZ);
   //println("x="+rotX+" y="+rotY+" z="+valZ);
   //println("vert="+move.y+" horz="+move.x+" sel=");
 }
 
 void rotateTowards()
 {
-  if(abs(nextRotY - rotY) > incr)
-  {
-    if(rotToPosY) { rotY += incr; }
-    else { rotY -= incr; }
-  }
+  rotY += incr*rotToY;
+  rotX += incr*rotToX;
+  if(rotX>PI/2) { rotX = PI/2; }
+  else if(rotX<-PI/2) { rotX = -PI/2; }
+  //if(abs(nextRotY - rotY) > incr)
+  //{
+  //  if(rotToPosY) { rotY += incr; }
+  //  else { rotY -= incr; }
+  //}
   
-  if(abs(nextRotX - rotX) > incr)
-  {
-    if(rotToPosX) { rotX += incr; }
-    else { rotX -= incr; }
-  }
+  //if(abs(nextRotX - rotX) > incr)
+  //{
+  //  if(rotToPosX) { rotX += incr; }
+  //  else { rotX -= incr; }
+  //}
 }
 
 void moveTowards()
 {
+  //println("move to x: " + moveToX + " move to y: " + moveToY);
   move.add(new PVector(-sin(rotY)*walkSpeed*moveToY, 0, cos(rotY)*walkSpeed*moveToY));
   move.add(new PVector(-sin(rotY-PI/2)*walkSpeed*moveToX, 0, cos(rotY-PI/2)*walkSpeed*moveToX));
 }
@@ -184,32 +192,13 @@ void keyboardControls()
   rotY = mouseX*PI/200;
   
   if(keyPressed)
-  {  
+  {
     if(key == 'w') { move.add(new PVector(-sin(rotY)*walkSpeed, 0, cos(rotY)*walkSpeed)); }
-    if(key == 's') { move.add(new PVector(sin(rotY)*walkSpeed, 0, -cos(rotY)*walkSpeed)); }
+    if(key == 's') {  move.add(new PVector(sin(rotY)*walkSpeed, 0, -cos(rotY)*walkSpeed)); }
     if(key == 'a') { move.add(new PVector(-sin(rotY-PI/2)*walkSpeed, 0, cos(rotY-PI/2)*walkSpeed)); }
     if(key == 'd') { move.add(new PVector(-sin(rotY+PI/2)*walkSpeed, 0, cos(rotY+PI/2)*walkSpeed)); }
     //if(keyCode==SHIFT) { elevation += cubeSize*1.5; }
   }
-}
-
-void handleCollision()
-{  
-  //println(-int(ceil(move.x/cubeSize)) + " " + -int(ceil(move.z/cubeSize)));
-  if(-int(ceil(move.x/cubeSize)) != pmove.x || -int(ceil(move.z/cubeSize)) != pmove.z) 
-  {
-    pmove.x = -int(ceil(move.x/cubeSize));
-    pmove.z = -int(ceil(move.z/cubeSize));
-    //println("new pos at " + millis());
-  }
-  
-  //print(pmove.x + " " + pmove.z + " | ");
-  //  //pmove = move;
-  //println(-move.x/cubeSize + " " + -move.z/cubeSize);
-  
-  println(treeXP + " " + treeXN + " " + treeYP + " " + treeYN);
-  if(treeXP||treeXN) { move.x = pmove.x; }
-  if(treeYP||treeYN) { move.z = pmove.z; }
 }
 
 void draw()
@@ -224,16 +213,15 @@ void draw()
   //sphere(20);
   
   pushMatrix();
-
   
-  keyboardControls();
+  //keyboardControls();
   
   //=====ARDUINO CONTROLS===
-  //handleSerialInput();
-  //rotateTowards();
-  //moveTowards();
+  handleSerialInput();
+  rotateTowards();
+  moveTowards();
   
-  handleCollision();
+  
 
   //stroke(100, 100, 200);
   //lights();
@@ -268,15 +256,8 @@ void draw()
         for(int k = 0; k < treesNearby.size(); k++)
         {
           Cube cube = (Cube)treesNearby.get(k);
-          //println("tree at [" + cube.x + "][" + cube.y + "]");
-          if(i == cube.x - 1) { treeXP = true; }
-          else { treeXP = false; }
-          if(i == cube.x + 1) { treeXN = true; }
-          else { treeXN = false; }
-          if(j == cube.y - 1) { treeYP = true; }
-          else { treeYP = false; }
-          if(j == cube.y + 1) { treeYN = true; }
-          else { treeYN = false; }
+          println(cube.x);
+          // when moving, check if tree in that direction
         }
       }
       //else elevation-=0.1;
@@ -286,6 +267,8 @@ void draw()
     translate(cubeSize, 0, 0);
   } 
   popMatrix();
+  
+  //handleFalling(); //doesn't work
 }
 
 class Cube
@@ -307,7 +290,7 @@ class Cube
     if(int(random(30))==0) { hasTree = true; }
     if(hasTree)
     {
-      //println("cube["+x+"]["+y+"] has tree");
+      println("cube["+x+"]["+y+"] has tree");
       tree = new Tree(this, int(random(8, 20)));
     }
   }
@@ -336,7 +319,7 @@ class Cube
   ArrayList<Cube> cubesHaveTrees()
   {
     ArrayList<Cube> cubesWithTrees = new ArrayList<Cube>();
-    if(x > 0 && x < X-1 && y > 0 && y < Y-1)
+    if(x > 0 && x < X && y > 0 && y < Y)
     {
       for(int i = -1; i < 2; i++)
       {
