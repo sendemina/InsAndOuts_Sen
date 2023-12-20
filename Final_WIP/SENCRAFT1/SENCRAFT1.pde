@@ -10,15 +10,16 @@ inputState currentInput;
  
 int valX, valY, valZ, valS, valV, valH;
 
-float nextRotX, nextRotY;
-boolean rotToPosX, rotToPosY;
+float nextRotX;
+int rotToY;
+boolean rotToPosX;
 float rotX, rotY;
 
 PVector pmove;
 PVector move;
 int moveToX, moveToY;
 
-float incr = 0.05;
+float incr = 0.03;
 
 float walkSpeed = 5;
 int cubeSize = 50;
@@ -42,7 +43,7 @@ void setup()
 {
   size(1000, 600, P3D);
   //soundtrack();
-  //setupSerial();
+  setupSerial();
   
   move = new PVector(0, 0, 0);
   pmove = new PVector(0, 0, 0);
@@ -125,17 +126,23 @@ void handleInputAxes()
   {
     case Xa:
       valX = val;
-      nextRotY = -(PI/3+valX/255.0*2*PI);
-      if(nextRotY - rotY > 0) { rotToPosY = true; }
-      else { rotToPosY = false; }
+      if(valX > 140) { rotToY = -1; }
+      else if (valX < 120) { rotToY = 1; }
+      else { rotToY = 0; }
+      //nextRotY = -(PI/3+valX/255.0*2*PI);
+      //if(nextRotY - rotY > 0) { rotToPosY = true; }
+      //else { rotToPosY = false; }
       //rotY = -(PI/3+valX/255.0*2*PI);
       break;
     case Ya:
       valY = val;
+      //if(valX > 132) { rotToX = 1; }
+      //else if (valX < 128) { rotToX = -1; }
+      //else { rotToX = 0; }
       nextRotX = -(PI/2-valY/255.0*PI);
       if(nextRotX - rotX > 0) { rotToPosX = true; }
       else { rotToPosX = false; }
-      //rotX = PI/2-valY/360.0*PI;
+      //rotX = PI/2-valY/180.0*PI;
       break;
     case Za:
       valZ = val;
@@ -144,12 +151,14 @@ void handleInputAxes()
       println("sel=" + val);
       break;
     case Vert:
-      if(val > 130) { moveToY = 1; }
+      valV = val;
+      if(val > 145) { moveToY = 1; }
       else if(val < 125) { moveToY = -1; }
       else { moveToY = 0; }
       break;
     case Horz:
-      if(val > 130) { moveToX = 1; }
+      valH = val;
+      if(val > 145) { moveToX = 1; }
       else if(val < 125) { moveToX = -1; }
       else { moveToX = 0; }
       break;
@@ -159,22 +168,24 @@ void handleInputAxes()
   
   //println("x="+valX+" y="+valY+" z="+valZ);
   //println("x="+rotX+" y="+rotY+" z="+valZ);
-  //println("vert="+move.y+" horz="+move.x+" sel=");
+  //println("vert="+valV+" horz="+valH);
+  //println("vert="+move.y+" horz="+move.x);
 }
 
 void rotateTowards()
 {
-  if(abs(nextRotY - rotY) > incr)
-  {
-    if(rotToPosY) { rotY += incr; }
-    else { rotY -= incr; }
-  }
+  //if(abs(nextRotY - rotY) > incr)
+  //{
+  //  if(rotToPosY) { rotY += incr; }
+  //  else { rotY -= incr; }
+  //}
   
-  if(abs(nextRotX - rotX) > incr)
+  if(abs(nextRotX - rotX) > incr*2)
   {
     if(rotToPosX) { rotX += incr; }
     else { rotX -= incr; }
   }
+  rotY += rotToY * incr;
 }
 
 void moveTowards()
@@ -200,10 +211,9 @@ void keyboardControls()
 }
 
 
-
 void handleCollision()
 {  
-  println(lastPos.x_pos + " " + lastPos.y_pos);
+  //println(lastPos.x_pos + " " + lastPos.y_pos);
   if(colliding) 
   { 
     //move.x = lastPos.x_pos;
@@ -250,6 +260,7 @@ void draw()
   }
   
   handleFalling();
+  
   //UI
   pushMatrix();
   stroke(200);
@@ -266,12 +277,12 @@ void draw()
   
   pushMatrix();
 
-  keyboardControls();
+  //keyboardControls();
   
   //=====ARDUINO CONTROLS===
-  //handleSerialInput();
-  //rotateTowards();
-  //moveTowards();
+  handleSerialInput();
+  rotateTowards();
+  moveTowards();
   
   handleCollision();
   
