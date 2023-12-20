@@ -1,3 +1,8 @@
+/*
+  SENCRAFT by Sen Demina
+  Music by Julien Massaux
+*/
+
 import processing.sound.*;
 import processing.serial.*;
 import java.util.ArrayList;
